@@ -112,25 +112,54 @@ def reduce_samples(values,method='mean',*,sample_counts=None,nan_policy='propaga
         _cancel(cancel_event);out=np.linalg.norm(a,axis=1);_cancel(cancel_event)
         return np.frombuffer(out.tobytes(),dtype=out.dtype).reshape(out.shape)
     rows=a.reshape(len(a),width);out=np.empty(len(a),dtype=a.dtype)
-    for i,n in enumerate(counts):
+    # Keep work/cancellation bounded independently of the entity count. Dense
+    # finite rows share NumPy's native row operations; unusual native layouts
+    # retain the exact per-row policy below (including counted NaN vs empty).
+    block_rows=max(1,min(4096,65536//max(1,width)))
+    if not np.may_share_memory(a,rows):
+        # Collapsing a strided multi-axis sample layout can already consume
+        # the admitted full-array scratch. Retain the original row-sized work.
+        block_rows=1
+    if method=='max_abs':
+        # argmax uses platform-sized indices, including for float16/32 input.
+        # Keep those indices within the existing output scratch allowance.
+        block_rows=min(block_rows,max(1,len(a)*a.dtype.itemsize//np.dtype(np.intp).itemsize))
+    for start in range(0,len(a),block_rows):
         _cancel(cancel_event)
-        row=rows[i,:int(n)]
-        missing=np.isnan(row)
-        if missing.any():
-            if nan_policy=='raise':raise ValidationError('NaN in actual native samples')
-            if nan_policy=='propagate':out[i]=np.nan;continue
-            row=row[~missing]
+        stop=min(len(a),start+block_rows);block=rows[start:stop]
+        if (width and (method!='mean' or block.strides[1]==a.dtype.itemsize)
+                and np.all(counts[start:stop]==width) and not np.isnan(block).any()):
+            if method=='max_abs':
+                if width==1:out[start:stop]=block[:,0]
+                else:
+                    # Explicit row-contiguous scratch prevents argmax making a
+                    # second full-sized copy for Fortran/strided source blocks.
+                    indices=np.argmax(np.abs(block,order='C'),axis=1)
+                    out[start:stop]=np.take_along_axis(block,indices[:,None],axis=1)[:,0]
+                    del indices
+            elif method=='mean':out[start:stop]=np.mean(block,axis=1)
+            elif method=='min':out[start:stop]=np.min(block,axis=1)
+            else:out[start:stop]=np.max(block,axis=1)
+            continue
+        for i in range(start,stop):
+            _cancel(cancel_event)
+            row=rows[i,:int(counts[i])]
+            missing=np.isnan(row)
+            if missing.any():
+                if nan_policy=='raise':raise ValidationError('NaN in actual native samples')
+                if nan_policy=='propagate':out[i]=np.nan;continue
+                row=row[~missing]
+                if not len(row):
+                    # Counted all-NaN samples are missing numerical evidence,
+                    # distinct from structurally empty native rows.
+                    out[i]=np.nan;continue
             if not len(row):
-                # Counted all-NaN samples are missing numerical evidence,
-                # distinct from structurally empty native rows.
-                out[i]=np.nan;continue
-        if not len(row):
-            if empty_policy=='raise':raise EmptySampleError('native sample row is empty')
-            out[i]=0 if empty_policy=='zero' else np.nan;continue
-        if method=='max_abs':out[i]=row[int(np.argmax(np.abs(row)))]
-        elif method=='mean':out[i]=np.mean(row)
-        elif method=='min':out[i]=np.min(row)
-        else:out[i]=np.max(row)
+                if empty_policy=='raise':raise EmptySampleError('native sample row is empty')
+                out[i]=0 if empty_policy=='zero' else np.nan;continue
+            if method=='max_abs':out[i]=row[int(np.argmax(np.abs(row)))]
+            elif method=='mean':out[i]=np.mean(row)
+            elif method=='min':out[i]=np.min(row)
+            else:out[i]=np.max(row)
     _cancel(cancel_event)
     return np.frombuffer(out.tobytes(),dtype=out.dtype).reshape(out.shape)
 
@@ -463,12 +492,22 @@ class MemoryResultsReader:
             self._reads+=1;self._rows+=n
             if not _stored_only or (reduction is None and nan_policy=='raise'):
                 flat=value.reshape(n,native_width);selected_counts=None if counts is None else np.asarray(counts)[sel]
-                for i in range(n):
+                block_rows=max(1,min(4096,65536//max(1,native_width)))
+                for start in range(0,n,block_rows):
                     _cancel(cancel_event)
-                    if not presence[i]:continue
-                    actual=flat[i,:native_width if selected_counts is None else int(selected_counts[i])]
-                    if not _stored_only and np.isinf(actual).any():raise ValidationError('infinite provider engineering values')
-                    if reduction is None and nan_policy=='raise' and np.isnan(actual).any():raise ValidationError('NaN in actual native samples')
+                    stop=min(n,start+block_rows)
+                    if ((reduction is not None or nan_policy!='raise') and presence[start:stop].all()
+                            and (selected_counts is None or np.all(selected_counts[start:stop]==native_width))):
+                        actual=flat[start:stop]
+                        if not _stored_only and np.isinf(actual).any():raise ValidationError('infinite provider engineering values')
+                        if reduction is None and nan_policy=='raise' and np.isnan(actual).any():raise ValidationError('NaN in actual native samples')
+                        continue
+                    for i in range(start,stop):
+                        _cancel(cancel_event)
+                        if not presence[i]:continue
+                        actual=flat[i,:native_width if selected_counts is None else int(selected_counts[i])]
+                        if not _stored_only and np.isinf(actual).any():raise ValidationError('infinite provider engineering values')
+                        if reduction is None and nan_policy=='raise' and np.isnan(actual).any():raise ValidationError('NaN in actual native samples')
             if reduction is not None:
                 sliced=None if counts is None else np.asarray(counts)[sel]
                 reduction_budget=self.working_bytes-selector_bytes-provider_work-self._reserved_bytes-_arrays(d)
