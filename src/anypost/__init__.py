@@ -18,3 +18,6 @@ __all__ += ['vector_magnitude','absolute_sample_max']
 
 from .errors import EmptySampleError
 __all__ += ['EmptySampleError']
+
+from .glyphs import principal_axes
+__all__ += ['principal_axes']
