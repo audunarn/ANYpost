@@ -41,7 +41,8 @@ class LegacyResultsReader(ResultsReader):
                 else:
                     frame_count=ds.shape[0]
                     if len(names)>1:
-                        if ds.ndim<3 or ds.shape[-1]!=len(names):
+                        global_vector = ds.ndim == 2 and attrs.get('location') == 'global'
+                        if (ds.ndim < 3 and not global_vector) or ds.shape[-1]!=len(names):
                             raise ValidationError("ambiguous legacy component axis")
                         component_axis=True; spatial_shape=ds.shape[1:-1]
                     elif scalar_samples is not None:
