@@ -541,9 +541,9 @@ class ResultsReader:
         return a, ("indices", hashlib.sha256(a.tobytes()).digest())
     def _runtime_module(self):
         if self._runtime is None:
-            try: runtime = importlib.import_module("anysolver_results")
+            try: runtime = importlib.import_module("anyfesolver_results")
             except ImportError as exc:
-                raise RuntimeDependencyError("recovery needs optional ANYsolver-results runtime") from exc
+                raise RuntimeDependencyError("recovery needs optional ANYfeSolver-results runtime") from exc
             requested = self._meta["runtime"]
             identity = getattr(runtime,"RUNTIME_ID",None)
             if identity != requested and requested not in getattr(runtime,"SUPPORTED_RUNTIME_IDS",()):

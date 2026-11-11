@@ -1,7 +1,7 @@
 # Principal display axes
 
 `anypost.principal_axes(tensors, basis=None, cancel_event=None,
-working_bytes=67108864)` delegates to the NumPy-only ANYsolver-results runtime.
+working_bytes=67108864)` delegates to the NumPy-only ANYfeSolver-results runtime.
 Inputs must be admitted finite symmetric stress tensors with known sample and
 coordinate associations. The facade does not recover missing stress components.
 

@@ -57,7 +57,7 @@ def test_owner_cancel_check_exception_identity_survives(tmp_path,stream):
 
 def test_source_token_callback_preserves_solve_cancelled(tmp_path):
     # Actual public source token ABI; no model, preparation or recovery runs.
-    from anysolver.control import CancellationToken,SolveCancelled
+    from anyfesolver.control import CancellationToken,SolveCancelled
     token=CancellationToken();token.cancel('caller source cancellation')
     path=tmp_path/'previous.h5';path.write_bytes(b'previous')
     with pytest.raises(SolveCancelled,match='caller source cancellation'):

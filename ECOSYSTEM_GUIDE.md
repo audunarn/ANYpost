@@ -6,10 +6,10 @@ Read the current global `~/.codex/AGENTS.md` before repository work.
 
 The user-approved 2026-10-12 boundary assigns ANYpost the shared result archive,
 selection, caching, envelopes and presentation preparation service. ANYfem and
-ANYmarine retain their application workflows. ANYsolver owns physical recovery,
-certification and the separately installable ANYsolver-results runtime;
+ANYmarine retain their application workflows. ANYfeSolver owns physical recovery,
+certification and the separately installable ANYfeSolver-results runtime;
 ANY3dView owns rendering. There are no reverse imports from ANYpost to ANYfem
-or from ANYsolver to ANYpost.
+or from ANYfeSolver to ANYpost.
 
 Maintain one living record at `docs/IMPLEMENTATION_TASK.md`. Existing scientific
 tolerances, native authority, failed evidence, qualification scope and frozen

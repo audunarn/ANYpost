@@ -178,7 +178,7 @@ def admit_basis(values,rows,width):
     return values
 
 def runtime():
-    try:module=importlib.import_module('anysolver_results')
+    try:module=importlib.import_module('anyfesolver_results')
     except ImportError as error:raise RuntimeDependencyError('derived storage decoding needs ANYpost[results] runtime2') from error
     if getattr(module,'RUNTIME_ID',None)!='anysolver-results/2' or 'ordered_float64/1' not in getattr(module,'SUPPORTED_COMBINATIONS',()) or type(getattr(module,'STORAGE_PREDICTION_API',None)) is not int or module.STORAGE_PREDICTION_API!=1 or not callable(getattr(module,'validate_storage_prediction',None)):
         raise RuntimeDependencyError('derived storage predictor needs runtime2 ordered_float64/1')

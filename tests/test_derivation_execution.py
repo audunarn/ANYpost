@@ -18,7 +18,7 @@ def test_workers_validation_without_runtime_import(tmp_path,bad):
 @pytest.mark.parametrize('capability',[False,True])
 def test_capability_optional_dispatch_diagnostics_and_conservative_budget(tmp_path,monkeypatch,requested,capability):
     path=fixture(tmp_path)
-    import anysolver_results as runtime
+    import anyfesolver_results as runtime
     original=runtime.derive_field;calls=[]
     def derive(spec,inputs,**kwargs):
         calls.append(kwargs)

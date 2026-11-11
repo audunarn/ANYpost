@@ -19,7 +19,7 @@ def test_missing_runtime_capability_is_typed(monkeypatch):
     import builtins
     actual=builtins.__import__
     def refuse(name,*args,**kwargs):
-        if name=='anysolver_results.principals':raise ImportError('capability absent')
+        if name=='anyfesolver_results.principals':raise ImportError('capability absent')
         return actual(name,*args,**kwargs)
     monkeypatch.setattr(builtins,'__import__',refuse)
     with pytest.raises(RuntimeDependencyError) as caught:principal_axes(np.eye(3))
@@ -27,7 +27,7 @@ def test_missing_runtime_capability_is_typed(monkeypatch):
 
 
 def test_facade_preserves_preconversion_budget_and_basis_refusals(monkeypatch):
-    import anysolver_results.principals as module
+    import anyfesolver_results.principals as module
     calls=[]
     class HugeVirtualArray(np.ndarray):
         @property

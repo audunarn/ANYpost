@@ -146,7 +146,7 @@ def test_new_geometry_maps_refuse_invalid_source_and_archive(tmp_path,mutation):
 
 
 def test_ordered_runtime_capability_and_prepared_tag_dispatch(tmp_path,monkeypatch):
-    import anysolver_results as old
+    import anyfesolver_results as old
     import anypost.archive as archive
     c=native2();c['stored']={};path=write_results(tmp_path/'runtime.h5',c);calls=[]
     def prepare(basis,*,active_indices=None,combination):

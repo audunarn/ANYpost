@@ -59,9 +59,9 @@ def summary(records):
 
 def package_identities():
     """Record exact loaded source as well as distribution metadata."""
-    import anypost, anysolver_results, anyfem, any3dview
+    import anypost, anyfesolver_results, anyfem, any3dview
     result = {}
-    for name, module in (("ANYpost", anypost), ("ANYsolver-results", anysolver_results),
+    for name, module in (("ANYpost", anypost), ("ANYfeSolver-results", anyfesolver_results),
                          ("ANYfem", anyfem), ("ANY3dView", any3dview)):
         try: distribution_version = importlib.metadata.version(name)
         except importlib.metadata.PackageNotFoundError: distribution_version = None

@@ -93,7 +93,7 @@ def test_stream_no_per_case_groups(tmp_path):
 
 
 def test_actual_solver_stream_export_and_runtime(tmp_path):
-    from anysolver import PatternCase,RecoveryConfig,prepare_static_response_evaluator,export_recovery_capsule_to_sink
+    from anyfesolver import PatternCase,RecoveryConfig,prepare_static_response_evaluator,export_recovery_capsule_to_sink
     from test_prepared_static_evaluator import _bar,_case
     path=tmp_path/"actual-solver.h5"
     recovery=RecoveryConfig(include_stresses=True,include_reactions=True)
