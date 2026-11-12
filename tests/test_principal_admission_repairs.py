@@ -60,7 +60,7 @@ def test_actual_principal_overflow_chains_typed_runtime_and_reader_errors(tmp_pa
     with np.errstate(over='ignore'),open_results(path,derivation_workers=workers) as reader:
         with pytest.raises(RecoveryError) as error:reader.read_field('a','stress','principal')
         assert error.value.case_id=='a' and error.value.component_key=='principal'
-        import anysolver_results as runtime
+        import anyfesolver_results as runtime
         assert isinstance(error.value.__cause__,runtime.DerivationError) and isinstance(error.value.__cause__.__cause__,ValueError)
 
 

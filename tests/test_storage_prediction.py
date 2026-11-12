@@ -89,7 +89,7 @@ def test_verified_tile_is_byte_accounted_and_reused(tmp_path):
         assert reader.diagnostics['storage_prediction_tile_decodes']==2
 
 def test_metadata_without_runtime_and_new_capability_refusal(tmp_path,monkeypatch):
-    import anysolver_results as runtime
+    import anyfesolver_results as runtime
     path=write_results(tmp_path/'a.h5',capsule())
     monkeypatch.setattr(runtime,'STORAGE_PREDICTION_API',0)
     with open_results(path) as reader:

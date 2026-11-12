@@ -6,7 +6,7 @@ from test_stored_correction import capsule
 
 
 def record(status="failed"):
-    return dict(schema="anysolver.recovery_capsule_failure",version=1,runtime="anysolver-results/1",model_identity="exact-correction",mesh_identity="explicit-source-rows",status=status,error_type="SourceRecoveryError",error_module="source.fixture",message="native source recovery failed",input_case_ids=["c0","c1","failed-input"],diagnostics={"source_code":"SOURCE_FAILED","residual":{"numeric_kind":"nonfinite_float","value":"+Infinity"}})
+    return dict(schema="anyfesolver.recovery_capsule_failure",version=1,runtime="anysolver-results/1",model_identity="exact-correction",mesh_identity="explicit-source-rows",status=status,error_type="SourceRecoveryError",error_module="source.fixture",message="native source recovery failed",input_case_ids=["c0","c1","failed-input"],diagnostics={"source_code":"SOURCE_FAILED","residual":{"numeric_kind":"nonfinite_float","value":"+Infinity"}})
 
 
 def begin_one(sink):
@@ -60,7 +60,7 @@ def test_non_json_failure_is_reported_without_replacing_primary(tmp_path):
 
 
 def test_actual_export_failure_after_certified_batch_preserves_source_and_archive(tmp_path):
-    from anysolver import PatternCase,RecoveryConfig,prepare_static_response_evaluator,export_recovery_capsule_to_sink,PreparedStaticError
+    from anyfesolver import PatternCase,RecoveryConfig,prepare_static_response_evaluator,export_recovery_capsule_to_sink,PreparedStaticError
     from test_prepared_static_evaluator import _bar,_case
     path=tmp_path/"actual-source.h5";path.write_bytes(b"previous successful archive")
     sink=ArchiveSink(path)
@@ -70,7 +70,7 @@ def test_actual_export_failure_after_certified_batch_preserves_source_and_archiv
             with sink:export_recovery_capsule_to_sink(evaluator,cases,sink=sink,model_identity="bar",mesh_identity="bar-mesh",batch_size=1)
     assert path.read_bytes()==b"previous successful archive" and not list(tmp_path.glob(".*.tmp"))
     payload=json.loads(sink.diagnostic_path.read_text())
-    assert payload["schema"]=="anysolver.recovery_capsule_failure" and payload["input_case_ids"]==["a","b"]
+    assert payload["schema"]=="anyfesolver.recovery_capsule_failure" and payload["input_case_ids"]==["a","b"]
     assert payload["message"]==str(captured.value) and payload["diagnostics"]["pattern"]=="missing"
     assert payload["sink"]["completed_case_count"]==1 and payload["sink"]["completed_cases"][0]["case_id"]=="a"
     assert payload["sink"]["completed_cases"][0]["certified"] is True

@@ -1,5 +1,9 @@
 # ANYpost implementation task
 
+## FE solver package migration
+
+Archive readers load anyfesolver_results from ANYfeSolver-results 2.2.0 or later in major version 2. The existing anysolver.recovery_capsule schema and anysolver-results/1 and /2 runtime identities remain part of the on-disk format. Historical verification entries below name the packages used for those runs.
+
 Policy: ANY_ECOSYSTEM_RISK_PROPORTIONATE_ENGINEERING_V1, revision 2026-09-24.2.
 Level A development under the user-approved contract in C:/ANYworkspaceWork/anypost-20261012/CONTRACT.md. No qualification or release acceptance claimed.
 

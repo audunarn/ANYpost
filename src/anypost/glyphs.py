@@ -9,7 +9,7 @@ def principal_axes(tensors, *, basis=None, cancel_event=None, working_bytes=6710
     field; this function does not recover stresses or infer sample associations.
     """
     try:
-        from anysolver_results.principals import principal_axes as derive
+        from anyfesolver_results.principals import principal_axes as derive
     except ImportError as error:
         raise RuntimeDependencyError('principal axes require a runtime with principal_axes capability') from error
     try:return derive(tensors,basis=basis,cancel_event=cancel_event,working_bytes=working_bytes)

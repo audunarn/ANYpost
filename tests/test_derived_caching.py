@@ -3,8 +3,8 @@ import h5py
 import numpy as np
 import pytest
 from anypost import write_results,open_results,ValidationError,WorkingSetError
-import anysolver_results as runtime
-from anysolver_results.formulas import SHELL_LINEAR_COMPONENTS
+import anyfesolver_results as runtime
+from anyfesolver_results.formulas import SHELL_LINEAR_COMPONENTS
 
 
 def shell_capsule(n=129,*,binary=True):
@@ -145,7 +145,7 @@ def test_additive_prepared_runtime_abi_cache_order_and_working_budget(tmp_path,m
         SUPPORTED_COMBINATIONS=runtime.SUPPORTED_COMBINATIONS,
         prepare_response=prepare_response,reconstruct_prepared_response=reconstruct_prepared_response,
         derive_field=runtime.derive_field,reconstruct_response=runtime.reconstruct_response)
-    monkeypatch.setitem(sys.modules,"anysolver_results",fake)
+    monkeypatch.setitem(sys.modules,"anyfesolver_results",fake)
     with open_results(path,working_bytes=65536) as reader:
         np.testing.assert_array_equal(reader.read_field("a","stress","principal"),reference(c,"principal"))
         creations=reader.diagnostics["prepared_response_creations"]
@@ -172,7 +172,7 @@ def test_prepared_runtime_incomplete_or_bad_accounting_refused(tmp_path,monkeypa
     for fake,error,message in (
         (SimpleNamespace(**declared,prepare_response=lambda *a,**kw:None),RuntimeDependencyError,'incomplete prepared response ABI'),
         (SimpleNamespace(**declared,prepare_response=lambda *a,**kw:SimpleNamespace(nbytes=0),reconstruct_prepared_response=lambda *a,**kw:np.zeros(20),derive_field=runtime.derive_field),ValidationError,'account exact')):
-        monkeypatch.setitem(sys.modules,"anysolver_results",fake)
+        monkeypatch.setitem(sys.modules,"anyfesolver_results",fake)
         with open_results(path) as reader:
             with pytest.raises(error,match=message):
                 reader.read_field("a","stress","vm")

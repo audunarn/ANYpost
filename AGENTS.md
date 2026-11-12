@@ -4,7 +4,7 @@ Read the current global `~/.codex/AGENTS.md`, `ECOSYSTEM_GUIDE.md`, and needed
 ranges of the canonical ecosystem philosophy before substantial work.
 
 Use `docs/IMPLEMENTATION_TASK.md` as the single living task record. Keep solver
-physics in ANYsolver-results, rendering in ANY3dView, and application ownership
+physics in ANYfeSolver-results, rendering in ANY3dView, and application ownership
 in its repository. Preserve existing dirty work and source-scoped evidence.
 
 Treat case status, model/mesh identity, coordinate basis, units and native sample

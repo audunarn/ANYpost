@@ -1,6 +1,6 @@
 # ANYpost
 
-ANYpost stores engineering results as atomic, model-bound HDF5 archives and reads selected scalar fields or stable envelopes. Engineering values remain float64. Importing ANYpost requires NumPy/h5py; stored archives do not require ANYsolver or its lightweight runtime.
+ANYpost stores engineering results as atomic, model-bound HDF5 archives and reads selected scalar fields or stable envelopes. Engineering values remain float64. Importing ANYpost requires NumPy/h5py; stored archives do not require ANYfeSolver or its lightweight runtime.
 
 ```python
 from anypost import write_results, open_results
@@ -16,7 +16,7 @@ with open_results("analysis.anypost.h5", expected_model_identity="model-42") as 
 
 The default result/basis cache ceiling is 2 GiB. `working_bytes` defaults to 256 MiB and is separately enforced before output allocations; requests too large for the working cap must use a spatial selection. Recovery and envelope evaluation use spatial chunks. The working cap accounts managed numeric buffers and selections; Python/HDF5 implementation overhead and the OS file cache are separate from these diagnostics. `diagnostics` reports resident/peak cache bytes, reads, reconstructions and accounted working bytes. `set_external_cache_bytes(owner_key, byte_count)` registers retained rendering buffers under the same cache ceiling; release with zero. Geometry is outside the result cache.
 
-The base package supports Python 3.10+; the optional solver runtime requires Python 3.11+. Offline reconstruction lazily imports `anysolver_results`, checks its runtime identity, and admits completed certified cases only. ANYpost contains no element recovery equations. Entirely stored data needs no runtime; missing runtime raises `RuntimeDependencyError`. Failed cases remain discoverable and are excluded from envelopes. Exact ties use the first requested admitted case unless descriptor `tie_policy="last"` records a last-requested override. Solver descriptors may record `tie_policy="exact_earliest_input_index"`; then unique nonnegative case `input_index` values choose the earliest original solver input even for a reversed subset. Float64 near ties remain distinct, and failed cases cannot govern. `active_indices` preserves original one-based response-column indices; coefficients are packed in that order and an empty active list returns the baseline once.
+The base package supports Python 3.10+; the optional solver runtime requires Python 3.11+. Offline reconstruction lazily imports `anyfesolver_results`, checks its runtime identity, and admits completed certified cases only. ANYpost contains no element recovery equations. Entirely stored data needs no runtime; missing runtime raises `RuntimeDependencyError`. Failed cases remain discoverable and are excluded from envelopes. Exact ties use the first requested admitted case unless descriptor `tie_policy="last"` records a last-requested override. Solver descriptors may record `tie_policy="exact_earliest_input_index"`; then unique nonnegative case `input_index` values choose the earliest original solver input even for a reversed subset. Float64 near ties remain distinct, and failed cases cannot govern. `active_indices` preserves original one-based response-column indices; coefficients are packed in that order and an empty active list returns the baseline once.
 
 ANYfem v1 `anyfem.result` HDF5 sidecars are supported read-only, preserving frame-major fields, component/sample axes, missing-data NaNs, source descriptors, tables, IDs and provenance. Legacy case IDs are zero-based frame index strings. Legacy sidecars carry model/mesh hashes and refer to a separate mesh artifact; `geometry()` is empty. Ambiguous component axes and missing association tables are refused. No pickle is read.
 
@@ -28,7 +28,7 @@ Large exports use the solver's structural sink protocol directly:
 
 ```python
 from anypost import ArchiveSink
-from anysolver import export_recovery_capsule_to_sink
+from anyfesolver import export_recovery_capsule_to_sink
 with ArchiveSink("analysis.anypost.h5") as sink:
     export_recovery_capsule_to_sink(
         evaluator, cases, sink=sink,
@@ -54,7 +54,7 @@ Native `anypost.results/1` response matrices may use the optional `uniform_sampl
 
 The reader maps requested logical rows to their group and sample position, reads only those response rows, and restores reverse/arbitrary/duplicate request order before calling the unchanged lightweight runtime. Decoded values remain exact float64 source values; no averaging or source equations change. Codec shape and metadata are admitted at open; the complete association digest, equal-group layout and unique group IDs are proved in bounded temporary buffers before response access, with compact immutable proofs surviving `clear_cache()`. Unknown codecs, malformed shapes/layouts, changed association bindings and damaged checksum chunks are typed refusals. Flat native and legacy archives remain readable. Splitting sample positions into separate chunks can materially increase archive size when the original data compress repeated sample rows well; selective-read speed and archive size should both be measured on representative data.
 
-The optional `results` dependency admits ANYsolver-results major versions 1 and 2 (`>=1.0.0,<3`); that runtime requires Python 3.11 or newer, while the stored-only ANYpost package supports Python 3.10 or newer.
+The optional `results` dependency admits ANYfeSolver-results major versions 1 and 2 (`>=2.2.0,<3`); that runtime requires Python 3.11 or newer, while the stored-only ANYpost package supports Python 3.10 or newer.
 
 UI hosts can prefetch geometry and descriptor snapshots from the same live reader on their I/O executor, then attach the retained view on the viewer owner thread:
 

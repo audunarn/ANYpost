@@ -105,9 +105,9 @@ def test_rehashed_duplicate_group_metadata_refused(tmp_path):
 
 
 def test_actual_s3_seven_sample_seven_case_producer_roundtrip(tmp_path):
-    from anysolver import PatternCase,RecoveryConfig,prepare_static_response_evaluator,export_recovery_capsule,export_recovery_capsule_to_sink
+    from anyfesolver import PatternCase,RecoveryConfig,prepare_static_response_evaluator,export_recovery_capsule,export_recovery_capsule_to_sink
     from test_prepared_static_evaluator import _shell_model,_shell_case
-    import anysolver_results as runtime
+    import anyfesolver_results as runtime
     cases=[PatternCase("fallback",{"p":1.},canonical_load_case=_shell_case(3,pressure=5).load_case)]
     cases += [PatternCase(f"physical-{i}",{"p":i/8}) for i in range(1,7)]
     recovery=RecoveryConfig(include_stresses=True,include_reactions=True)

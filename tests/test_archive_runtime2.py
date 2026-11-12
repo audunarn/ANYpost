@@ -1,7 +1,7 @@
 """Installed runtime2/source record integration; intentionally skipped by runtime1."""
 import numpy as np
 import pytest
-import anysolver_results as runtime
+import anyfesolver_results as runtime
 from anypost import write_results,open_results,ArchiveSink,UnavailableFieldError
 from test_stored_correction import bits_equal,capsule
 pytestmark=pytest.mark.skipif(runtime.RUNTIME_ID!='anysolver-results/2',reason='Requires frozen source/runtime2 installed pair')
@@ -23,7 +23,7 @@ def source_values(record,key):
 
 @pytest.mark.parametrize('fixture',['beam2','beam3','rotated_shell_pressure'])
 def test_actual_source_records_writer_stream_selectors_and_envelope_bits(tmp_path,fixture):
-    from anysolver import PatternCase,RecoveryConfig,FixedSupport,BoundaryCondition,prepare_static_response_evaluator,export_recovery_capsule,export_recovery_capsule_to_sink
+    from anyfesolver import PatternCase,RecoveryConfig,FixedSupport,BoundaryCondition,prepare_static_response_evaluator,export_recovery_capsule,export_recovery_capsule_to_sink
     from test_prepared_static_evaluator import _bar,_case,_shell_case
     from test_result_capsule_export import _rotated_shell_model
     if fixture=='rotated_shell_pressure':
@@ -32,8 +32,8 @@ def test_actual_source_records_writer_stream_selectors_and_envelope_bits(tmp_pat
     else:
         if fixture=='beam3':
             from test_generalized_beam_sections import _model,_stiffness
-            from anysolver.elements import QuadraticBeamElement
-            from anysolver.beam_sections import GeneralizedBeamSection
+            from anyfesolver.elements import QuadraticBeamElement
+            from anyfesolver.beam_sections import GeneralizedBeamSection
             model,_=_model(QuadraticBeamElement,section=GeneralizedBeamSection(_stiffness()))
             model.add_boundary_condition(FixedSupport('base',[1]))
             model.add_boundary_condition(BoundaryCondition('axial',[2,3],{'uy':0.,'uz':0.,'rx':0.,'ry':0.,'rz':0.}))

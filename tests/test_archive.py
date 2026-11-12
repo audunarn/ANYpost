@@ -88,11 +88,11 @@ def test_runtime_delegation_override_and_identity(tmp_path,capsule,monkeypatch):
     c["stored"]["sx"]["values"]=np.array([[90,91,92,93,94]],dtype=float)
     c["cases"][0]["active_indices"]=[1]
     path=write_results(tmp_path/"replay.h5",c)
-    monkeypatch.setitem(sys.modules,"anysolver_results",None)
+    monkeypatch.setitem(sys.modules,"anyfesolver_results",None)
     with open_results(path) as reader:
         np.testing.assert_array_equal(reader.read_field("b","stress","x"),[90,91,92,93,94])
         with pytest.raises(RuntimeDependencyError): reader.read_field("a","stress","x")
-    monkeypatch.setitem(sys.modules,"anysolver_results",SimpleNamespace(RUNTIME_ID="wrong"))
+    monkeypatch.setitem(sys.modules,"anyfesolver_results",SimpleNamespace(RUNTIME_ID="wrong"))
     with open_results(path) as reader:
         with pytest.raises(RuntimeDependencyError): reader.read_field("a","stress","x")
     calls=[]
@@ -103,7 +103,7 @@ def test_runtime_delegation_override_and_identity(tmp_path,capsule,monkeypatch):
         for column, coefficient in zip(columns, coefficients):
             out+=responses[:,column]*coefficient
         return out
-    monkeypatch.setitem(sys.modules,"anysolver_results",SimpleNamespace(RUNTIME_ID="anysolver-results/1",reconstruct_response=reconstruct))
+    monkeypatch.setitem(sys.modules,"anyfesolver_results",SimpleNamespace(RUNTIME_ID="anysolver-results/1",reconstruct_response=reconstruct))
     with open_results(path,working_bytes=300) as reader:
         np.testing.assert_array_equal(reader.read_field("a","stress","x",slice(None,None,-1)),[22,19,16,13,10])
         assert calls and all(item==[1] for item in calls)
@@ -119,7 +119,7 @@ def test_derived_delegation(tmp_path,capsule,monkeypatch):
     def derive(specification,inputs):
         calls.append(specification["operation"])
         return inputs["canonical"]*2
-    monkeypatch.setitem(sys.modules,"anysolver_results",SimpleNamespace(RUNTIME_ID="anysolver-results/1",derive_field=derive))
+    monkeypatch.setitem(sys.modules,"anyfesolver_results",SimpleNamespace(RUNTIME_ID="anysolver-results/1",derive_field=derive))
     path=write_results(tmp_path/"derived.h5",c)
     with open_results(path) as reader:
         np.testing.assert_array_equal(reader.read_field("a","equivalent","x"),[2,4,6,8,10])
@@ -167,7 +167,7 @@ def test_missing_stored_row_needs_no_runtime(tmp_path,capsule,monkeypatch):
     c["stored"]["sx"]["case_indices"]=np.array([0])
     c["stored"]["sx"]["values"]=c["stored"]["sx"]["values"][:1]
     path=write_results(tmp_path/"missing.h5",c)
-    monkeypatch.setitem(sys.modules,"anysolver_results",None)
+    monkeypatch.setitem(sys.modules,"anyfesolver_results",None)
     with open_results(path) as reader:
         with pytest.raises(UnavailableFieldError):reader.read_field("b","stress","x")
         with pytest.raises(UnavailableFieldError):reader.read_field("b","stress","x",[])
@@ -226,7 +226,7 @@ def test_original_sparse_column_order_and_empty_active(tmp_path,capsule,monkeypa
         columns=np.asarray(active_indices,dtype=int)
         # The actual solver admitted packet accumulation is active-column matmul.
         return responses[:,0]+responses[:,columns]@coefficients
-    monkeypatch.setitem(sys.modules,"anysolver_results",SimpleNamespace(RUNTIME_ID="anysolver-results/1",reconstruct_response=reconstruct))
+    monkeypatch.setitem(sys.modules,"anyfesolver_results",SimpleNamespace(RUNTIME_ID="anysolver-results/1",reconstruct_response=reconstruct))
     path=write_results(tmp_path/"sparse.h5",c)
     with open_results(path) as reader:
         expected=c["responses"]["sx"][:,0]+c["responses"]["sx"][:,[3,2]]@np.array([2.,-3.])
@@ -261,7 +261,7 @@ def test_coefficient_row_cached_across_chunks_components_and_cases(tmp_path,caps
     def reconstruct(responses,coefficients,*,active_indices=None):
         columns=np.arange(1,len(coefficients)+1) if active_indices is None else np.array(active_indices)
         return responses[:,0]+responses[:,columns]@coefficients
-    monkeypatch.setitem(sys.modules,"anysolver_results",SimpleNamespace(RUNTIME_ID="anysolver-results/1",reconstruct_response=reconstruct))
+    monkeypatch.setitem(sys.modules,"anyfesolver_results",SimpleNamespace(RUNTIME_ID="anysolver-results/1",reconstruct_response=reconstruct))
     path=write_results(tmp_path/"coef-cache.h5",c)
     with open_results(path,cache_bytes=8192,working_bytes=512) as reader:
         expected=basis[:,0]+basis[:,[2,1]]@np.array([-3.,2.])
